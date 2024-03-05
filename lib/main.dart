@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import 'debounced_search_bar.dart';
-import 'itunes_item.dart';
+import 'package:flutter_debounced_search_bar/debounced_search_bar.dart';
+import 'package:flutter_debounced_search_bar/itunes_item.dart';
 
 void main() {
   runApp(const MyApp());
@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
               resultSubtitleBuilder: (ITunesItem result) => Text(result.artistName),
               resultThumbnailBuilder: (ITunesItem result) => result.artworkUrl30 != null
                   ? Image.network(result.artworkUrl30!)
-                  : Container(color: Colors.grey, width: 30, height: 30, child: const Icon(Icons.music_note)),
+                  : const Icon(Icons.music_note),
               searchFunction: searchITunes,
             ),
             if (_selectedITunesItem != null) ...[
