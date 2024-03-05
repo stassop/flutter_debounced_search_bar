@@ -16,7 +16,7 @@ _Debounceable<S, T> _debounce<S, T>(_Debounceable<S?, T> function) {
     if (debounceTimer != null && !debounceTimer!.isCompleted) {
       debounceTimer!.cancel();
     }
-    debounceTimer = _DebounceTimer(duration: const Duration(milliseconds: 500));
+    debounceTimer = _DebounceTimer();
     try {
       await debounceTimer!.future;
     } catch (error) {
@@ -29,12 +29,12 @@ _Debounceable<S, T> _debounce<S, T>(_Debounceable<S?, T> function) {
 
 // A wrapper around Timer used for debouncing.
 class _DebounceTimer {
-  _DebounceTimer({required this.duration}) {
-    _timer = Timer(duration, _onComplete);
+  _DebounceTimer() {
+    _timer = Timer(_duration, _onComplete);
   }
 
   late final Timer _timer;
-  final Duration duration;
+  final Duration _duration = const Duration(milliseconds: 500);
   final Completer<void> _completer = Completer<void>();
 
   void _onComplete() {
@@ -80,11 +80,8 @@ class DebouncedSearchBarState<T> extends State<DebouncedSearchBar<T>> {
   late final _Debounceable<Iterable<T>?, String> _debouncedSearch;
   final _debouncedSearchRx = BehaviorSubject<String>.seeded('');
 
-  _selectResult(T result) {
-    widget.onResultSelected?.call(result);
-  }
-
   Future<Iterable<T>> _search(String query) async {
+    print('Searching for: $query');
     if (query.isEmpty) {
       return <T>[];
     }
@@ -130,21 +127,21 @@ class DebouncedSearchBarState<T> extends State<DebouncedSearchBar<T>> {
         );
       },
       suggestionsBuilder: (BuildContext context, SearchController controller) async {
-        // final results = await _debouncedSearch(controller.text);
-        // if (results == null) {
-        //   return <Widget>[];
-        // }
-        final results = await _debouncedSearchRx
-            .debounceTime(const Duration(milliseconds: 500))
-            .asyncMap((query) => widget.searchFunction(query))
-            .first;
+        final results = await _debouncedSearch(controller.text);
+        if (results == null) {
+          return <Widget>[];
+        }
+        // final results = await _debouncedSearchRx
+        //     .debounceTime(const Duration(milliseconds: 500))
+        //     .asyncMap((query) => _search(query))
+        //     .first;
         return results.map((result) {
           return ListTile(
             title: widget.resultTitleBuilder(result),
             subtitle: widget.resultSubtitleBuilder?.call(result),
             leading: widget.resultLeadingBuilder?.call(result),
             onTap: () {
-              _selectResult(result);
+              widget.onResultSelected?.call(result);
               controller.closeView(widget.resultToString(result));
             },
           );

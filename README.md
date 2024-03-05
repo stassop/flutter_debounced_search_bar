@@ -1,17 +1,13 @@
-# Flutter Debounced Search Bar
+# Debouncing Flutter SearchAnchor
+## With and Without Third-party Libraries
 
-This is a 
+### Problem
 
-## Getting Started
+`SearchAnchor` is probably one of the most useful Material widgets. There’s a small problem however: it doesn’t appear to have any debouncing mechanism.
 
-This project is a starting point for a Flutter application.
+Debouncing works by introducing a delay between consecutive event occurrences, ensuring that a function is only executed after a specified quiet period following the last event.
 
-A few resources to get you started if this is your first Flutter project:
+In the case of `SearchAnchor` it means that when the user is typing, the suggestionsBuilder function is called multiple times, causing flicker and consecutive sets of search results to appear.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+The obvious solution would be fetching the results in an async function delayed by a `Timer` and updating the state. Unfortunately, this won’t work because widget state and that of `SearchAnchor` aren’t synced.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# flutter_debounced_search_bar
