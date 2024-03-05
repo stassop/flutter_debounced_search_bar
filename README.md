@@ -126,7 +126,7 @@ _Debounceable<S, T> _debounce<S, T>(_Debounceable<S?, T> function) {
 }
 ```
 
-Next, we need a Timer that acts like a Future but is cancelable:
+Next, we need a `Timer` that acts like a `Future` but is cancelable:
 
 ```dart
 // A wrapper around Timer used for debouncing.
@@ -221,3 +221,14 @@ class DebouncedSearchBarState<T> extends State<DebouncedSearchBar<T>> {
   }
 }
 ```
+
+## Which Solution to Choose?
+Both approaches achieve debouncing, but the `rxdart` solution is generally considered more efficient and easier to manage for complex scenarios. Choose the approach that best suits your project's dependencies and preferences.
+
+## Complete Example
+The complete example can be found here. It uses the iTunes Search API to search for music. The API is free and doesn’t require registration or an auth key.
+
+![Flutter Debounced Search Bar](flutter_debounced_search_bar.gif)
+
+## Conclusion
+Use debouncing to avoid unnecessary API calls and optimize your code. I recommend spending more time looking into how this code works in order to choose the optimal solution for your project.
