@@ -78,9 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   _selectedITunesItem = result;
                 });
               },
+              resultToString: (ITunesItem result) => result.trackName,
               resultTitleBuilder: (ITunesItem result) => Text(result.trackName),
               resultSubtitleBuilder: (ITunesItem result) => Text(result.artistName),
-              resultThumbnailBuilder: (ITunesItem result) => result.artworkUrl30 != null
+              resultLeadingBuilder: (ITunesItem result) => result.artworkUrl30 != null
                   ? Image.network(result.artworkUrl30!)
                   : const Icon(Icons.music_note),
               searchFunction: searchITunes,

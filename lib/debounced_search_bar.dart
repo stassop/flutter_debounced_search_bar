@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'dart:async'; 
 
 /// This is a simplified version of debounced search based on the following example:
-/// https://api.flutter.dev/flutter/material/Autocomplete-class.html?v=1.0.20#material.Autocomplete.5
+/// https://api.flutter.dev/flutter/material/SearchAnchor-class.html#material.SearchAnchor.4
 typedef _Debounceable<S, T> = Future<S?> Function(T parameter);
 
 /// Returns a new function that is a debounced version of the given function.
@@ -54,19 +55,21 @@ class DebouncedSearchBar<T> extends StatefulWidget {
   const DebouncedSearchBar({
     super.key,
     this.hintText,
+    required this.resultToString,
     required this.resultTitleBuilder,
-    this.resultSubtitleBuilder,
-    this.resultThumbnailBuilder,
-    required this.onResultSelected,
     required this.searchFunction,
+    this.resultSubtitleBuilder,
+    this.resultLeadingBuilder,
+    this.onResultSelected,
   });
 
   final String? hintText;
+  final String Function(T result) resultToString;
   final Widget Function(T result) resultTitleBuilder;
   final Widget Function(T result)? resultSubtitleBuilder;
-  final Widget Function(T result)? resultThumbnailBuilder;
-  final Function(T result)? onResultSelected;
+  final Widget Function(T result)? resultLeadingBuilder;
   final Future<Iterable<T>> Function(String query) searchFunction;
+  final Function(T result)? onResultSelected;
 
   @override
   State<StatefulWidget> createState() => DebouncedSearchBarState<T>();
@@ -75,6 +78,7 @@ class DebouncedSearchBar<T> extends StatefulWidget {
 class DebouncedSearchBarState<T> extends State<DebouncedSearchBar<T>> {
   final _searchController = SearchController();
   late final _Debounceable<Iterable<T>?, String> _debouncedSearch;
+  final _debouncedSearchRx = BehaviorSubject<String>.seeded('');
 
   _selectResult(T result) {
     widget.onResultSelected?.call(result);
@@ -97,11 +101,15 @@ class DebouncedSearchBarState<T> extends State<DebouncedSearchBar<T>> {
   void initState() {
     super.initState();
     _debouncedSearch = _debounce<Iterable<T>?, String>(_search);
+    _searchController.addListener(() {
+      _debouncedSearchRx.add(_searchController.text);
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debouncedSearchRx.close();
     super.dispose();
   }
 
@@ -122,18 +130,22 @@ class DebouncedSearchBarState<T> extends State<DebouncedSearchBar<T>> {
         );
       },
       suggestionsBuilder: (BuildContext context, SearchController controller) async {
-        final results = await _debouncedSearch(controller.text);
-        if (results == null) {
-          return <Widget>[];
-        }
+        // final results = await _debouncedSearch(controller.text);
+        // if (results == null) {
+        //   return <Widget>[];
+        // }
+        final results = await _debouncedSearchRx
+            .debounceTime(const Duration(milliseconds: 500))
+            .asyncMap((query) => widget.searchFunction(query))
+            .first;
         return results.map((result) {
           return ListTile(
             title: widget.resultTitleBuilder(result),
             subtitle: widget.resultSubtitleBuilder?.call(result),
-            leading: widget.resultThumbnailBuilder?.call(result),
+            leading: widget.resultLeadingBuilder?.call(result),
             onTap: () {
               _selectResult(result);
-              controller.closeView(controller.text);
+              controller.closeView(widget.resultToString(result));
             },
           );
         }).toList();

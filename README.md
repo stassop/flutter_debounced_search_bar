@@ -1,6 +1,6 @@
-# flutter_debounced_search_bar
+# Flutter Debounced Search Bar
 
-A new Flutter project.
+This is a 
 
 ## Getting Started
 
