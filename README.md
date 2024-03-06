@@ -7,7 +7,7 @@ Debouncing works by introducing a delay between consecutive event occurrences, e
 
 In the case of `SearchAnchor` it means that when the user is typing, the `suggestionsBuilder` function is called multiple times, causing flicker and consecutive sets of search results to appear.
 
-The obvious solution would be fetching the results in an async function delayed by a `Timer` and updating the state. Unfortunately, this won’t work because widget state and that of `SearchAnchor` aren’t synced.
+The obvious solution would be to fetch the results in an async function delayed by a `Timer` and updating the state. Unfortunately, this won’t work because widget state and that of `SearchAnchor` aren’t synced.
 
 ## What Does Google Say?
 Here’s what Google Gemini tells us about the issue:
